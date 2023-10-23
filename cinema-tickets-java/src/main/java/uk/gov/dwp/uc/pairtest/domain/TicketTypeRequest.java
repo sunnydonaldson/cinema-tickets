@@ -22,8 +22,22 @@ public class TicketTypeRequest {
         return type;
     }
 
-    public enum Type {
-        ADULT, CHILD , INFANT
+    public int getTotalcost() {
+        return this.type.getPrice() * this.noOfTickets;
     }
 
+    public enum Type {
+        ADULT(20),
+        CHILD(10),
+        INFANT(0);
+
+        private final int price;
+        Type(int price) {
+            this.price = price;
+        }
+
+        public int getPrice() {
+          return price;
+        }
+    }
 }
