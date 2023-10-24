@@ -17,28 +17,31 @@ public class TicketServiceImpl implements TicketService {
     private final TicketPaymentService paymentService;
     private final SeatReservationService reservationService;
 
-    /** Returns the default TicketServiceImpl
+    /**
+     * Returns the default TicketServiceImpl
      * 
-     * @return a TicketServiceImpl with default TicketPaymentService
-     * and SeatReservationService.
-    */
+     * @return a TicketServiceImpl with default TicketPaymentService and SeatReservationService.
+     */
     public TicketServiceImpl() {
         this(new TicketPaymentServiceImpl(), new SeatReservationServiceImpl());
     }
 
-    /** Returns a custom TicketServiceImpl with dependency injection.
+    /**
+     * Returns a custom TicketServiceImpl with dependency injection.
      * 
-     * @return a TicketServiceImpl with injected {@code paymentService}
-     * and {@code reservationService}.
-    */
-    TicketServiceImpl(TicketPaymentService paymentService, SeatReservationService reservationService) {
+     * @return a TicketServiceImpl with injected {@code paymentService} and
+     *         {@code reservationService}.
+     */
+    TicketServiceImpl(TicketPaymentService paymentService,
+            SeatReservationService reservationService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
     }
-    
+
     /** Charges payment and reserves seats for all {@param ticketTypeRequests}. */
     @Override
-    public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests) throws InvalidPurchaseException {
+    public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests)
+            throws InvalidPurchaseException {
         try {
             checkPreconditions(accountId, ticketTypeRequests);
         } catch (RuntimeException e) {
@@ -49,7 +52,8 @@ public class TicketServiceImpl implements TicketService {
         this.paymentService.makePayment(accountId, totalCost(ticketTypeRequests));
     }
 
-    private static final void checkPreconditions(Long accountId, TicketTypeRequest... ticketTypeRequests) {
+    private static final void checkPreconditions(Long accountId,
+            TicketTypeRequest... ticketTypeRequests) {
         checkNotNull(accountId, "accountId must not be null.");
         checkNotNull(ticketTypeRequests, "ticketTypeRequests must not be null.");
 
@@ -57,7 +61,7 @@ public class TicketServiceImpl implements TicketService {
         int childCount = 0;
         int infantCount = 0;
 
-        for (TicketTypeRequest request: ticketTypeRequests) {
+        for (TicketTypeRequest request : ticketTypeRequests) {
             int numTickets = request.getNoOfTickets();
             Type type = request.getTicketType();
 
@@ -78,15 +82,11 @@ public class TicketServiceImpl implements TicketService {
     }
 
     private static final int numSeats(TicketTypeRequest... ticketTypeRequests) {
-        return Arrays.stream(ticketTypeRequests)
-            .filter(r -> !r.getTicketType().equals(Type.INFANT))
-            .mapToInt(TicketTypeRequest::getNoOfTickets)
-            .sum();
+        return Arrays.stream(ticketTypeRequests).filter(r -> !r.getTicketType().equals(Type.INFANT))
+                .mapToInt(TicketTypeRequest::getNoOfTickets).sum();
     }
 
     private static final int totalCost(TicketTypeRequest... ticketTypeRequests) {
-        return Arrays.stream(ticketTypeRequests)
-            .mapToInt(TicketTypeRequest::getTotalCost)
-            .sum();
+        return Arrays.stream(ticketTypeRequests).mapToInt(TicketTypeRequest::getTotalCost).sum();
     }
 }

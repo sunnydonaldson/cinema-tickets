@@ -19,7 +19,7 @@ public class TicketTypeRequestTest {
     final int price = Type.CHILD.getPrice();
 
     assertEquals(10, price);
-  } 
+  }
 
   @Test
   public void getPrice_forInfant_returnsCorrectPrice() {
@@ -51,7 +51,7 @@ public class TicketTypeRequestTest {
     TicketTypeRequest request = new TicketTypeRequest(Type.INFANT, 10);
 
     final int total = request.getTotalCost();
-    
+
     assertEquals(0, total);
   }
 }
