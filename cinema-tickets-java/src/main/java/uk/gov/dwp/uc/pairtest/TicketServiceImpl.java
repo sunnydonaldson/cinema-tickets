@@ -13,6 +13,9 @@ import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Implements {@see TicketService} with functionality for reserving and paying for seats.
+ */
 public class TicketServiceImpl implements TicketService {
     private final TicketPaymentService paymentService;
     private final SeatReservationService reservationService;
@@ -38,7 +41,14 @@ public class TicketServiceImpl implements TicketService {
         this.reservationService = reservationService;
     }
 
-    /** Charges payment and reserves seats for all {@param ticketTypeRequests}. */
+    /**
+     * Charges payment and reserves seats for all {@param ticketTypeRequests}.
+     * 
+     * @param accountId for the user, must be greater than 0.
+     * @param ticketTypeRequests a list of requests to fulfil containing at least 1 adult, with less
+     *        or equal infants than adults, and less than 20 total total tickets.
+     * @throws InvalidPurchaseException if the constraints on the params above are violated.
+     */
     @Override
     public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests)
             throws InvalidPurchaseException {
