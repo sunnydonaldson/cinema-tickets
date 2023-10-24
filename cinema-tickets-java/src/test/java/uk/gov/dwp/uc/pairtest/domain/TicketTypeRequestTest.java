@@ -29,11 +29,29 @@ public class TicketTypeRequestTest {
   }
 
   @Test
-  public void getTotalCost_returnsCorrectCost() {
+  public void getTotalCost_adult_returnsCorrectCost() {
     TicketTypeRequest request = new TicketTypeRequest(Type.ADULT, 3);
 
-    final int total = request.getTotalcost();
+    final int total = request.getTotalCost();
 
     assertEquals(60, total);
+  }
+
+  @Test
+  public void getTotalCost_child_returnsCorrectCost() {
+    TicketTypeRequest request = new TicketTypeRequest(Type.CHILD, 4);
+
+    final int total = request.getTotalCost();
+
+    assertEquals(40, total);
+  }
+
+  @Test
+  public void getTotalCost_infant_returnsCorrectCost() {
+    TicketTypeRequest request = new TicketTypeRequest(Type.INFANT, 10);
+
+    final int total = request.getTotalCost();
+    
+    assertEquals(0, total);
   }
 }

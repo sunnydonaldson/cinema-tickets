@@ -29,12 +29,42 @@ public class TicketServiceTest {
   }
 
   @Test
+  public void purchaseTickets_nullAccountId_throwsException() {
+    final TicketTypeRequest[] requests = {
+      new TicketTypeRequest(Type.ADULT, 1)
+    };
+
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(null, requests);
+    });
+
+    assertExceptionContains(exception, "accountId must not be null.");
+  }
+
+  @Test
+  public void purchaseTickets_nullTicketTypeRequests_throwsException() {
+    final Long accountId = Long.valueOf(3);
+    final TicketTypeRequest[] requests = null;
+
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "ticketTypeRequests must not be null");
+  }
+
+  @Test
   public void purchaseTickets_tooFewTickets_throwsException() {
     final Long accountId = Long.valueOf(1);
     final TicketTypeRequest[] requests = {};
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId,
-        requests, "At least 1 adult ticket must be purchased.");
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "At least 1 adult ticket must be purchased.");
   }  
 
   @Test
@@ -44,8 +74,12 @@ public class TicketServiceTest {
       new TicketTypeRequest(Type.ADULT, 21)
     };
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId,
-        requests, "Must purchase between 1 and 20 tickets.");
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "Must purchase between 1 and 20 tickets.");
   }
 
   @Test
@@ -58,8 +92,12 @@ public class TicketServiceTest {
       requests[i] = new TicketTypeRequest(Type.ADULT, 1);
     }
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId,
-        requests, "Must purchase between 1 and 20 tickets.");
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "Must purchase between 1 and 20 tickets");
   }
 
   @Test
@@ -68,9 +106,14 @@ public class TicketServiceTest {
     TicketTypeRequest[] requests = {
       new TicketTypeRequest(Type.ADULT, 1)
     };
-    String expectedMessage = "accountId must be greater than 0.";
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId, requests, expectedMessage);
+    final var exception = assertInvalidPurchaseException(() -> {
+      ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "accountId must be greater than 0.");
+
   }
 
   @Test
@@ -118,9 +161,13 @@ public class TicketServiceTest {
     final TicketTypeRequest[] requests = {
       new TicketTypeRequest(Type.CHILD, 1)
     };
-    final String expectedMessage = "At least 1 adult ticket must be purchased.";
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId, requests, expectedMessage);
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+    
+    assertExceptionContains(exception,
+        "At least 1 adult ticket must be purchased.");
   }
 
   @Test
@@ -157,24 +204,33 @@ public class TicketServiceTest {
       new TicketTypeRequest(Type.ADULT, 1),
       new TicketTypeRequest(Type.INFANT, 2)
     };
-    final String expectedMessage = "Must have at least 1 adult per infant.";
 
-    purchaseTicketsThrowsInvalidPurchaseException(accountId, requests, expectedMessage);
+    final var exception = assertInvalidPurchaseException(() -> {
+      this.ticketService.purchaseTickets(accountId, requests);
+    });
+
+    assertExceptionContains(exception,
+        "Must have at least 1 adult per infant.");
   }
 
-  private void purchaseTicketsThrowsInvalidPurchaseException(Long accountId,
-      TicketTypeRequest[] requests, String expectedMessage) {
+  private InvalidPurchaseException assertInvalidPurchaseException(Runnable fn) {
     try {
-      this.ticketService.purchaseTickets(accountId, requests);
+      fn.run();
       fail("Expected to throw InvalidPurchaseException");
     } catch (InvalidPurchaseException exception) {
-      final String failureMessage = String.format(
-          "Expected '%s' to contain '%s'",
-          exception.getMessage(), expectedMessage
-      );
-
-      assertTrue(failureMessage,
-          exception.getMessage().contains(expectedMessage));
+      return exception;
     }
+
+    /* Should never reach here: either fn throws and we return the exception,
+    * or it doesn't and fail throws. */
+    return null;
+  }
+
+  private void assertExceptionContains(Exception exception, String pattern) {
+    final String message = exception.getMessage();
+    assertTrue(
+        String.format("Expected '%s' to contain '%s'.", message, pattern),
+        message.contains(pattern)
+    );
   }
 }

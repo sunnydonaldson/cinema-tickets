@@ -11,27 +11,37 @@ import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest.Type;
 import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TicketServiceImpl implements TicketService {
     private final TicketPaymentService paymentService;
     private final SeatReservationService reservationService;
-    /**
-     * Should only have private methods other than the one below.
-     */
+
+    /** Returns the default TicketServiceImpl
+     * 
+     * @return a TicketServiceImpl with default TicketPaymentService
+     * and SeatReservationService.
+    */
     public TicketServiceImpl() {
         this(new TicketPaymentServiceImpl(), new SeatReservationServiceImpl());
     }
 
+    /** Returns a custom TicketServiceImpl with dependency injection.
+     * 
+     * @return a TicketServiceImpl with injected {@code paymentService}
+     * and {@code reservationService}.
+    */
     TicketServiceImpl(TicketPaymentService paymentService, SeatReservationService reservationService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
     }
     
+    /** Charges payment and reserves seats for all {@param ticketTypeRequests}. */
     @Override
     public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests) throws InvalidPurchaseException {
         try {
             checkPreconditions(accountId, ticketTypeRequests);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             throw new InvalidPurchaseException(e);
         }
 
@@ -40,6 +50,9 @@ public class TicketServiceImpl implements TicketService {
     }
 
     private static final void checkPreconditions(Long accountId, TicketTypeRequest... ticketTypeRequests) {
+        checkNotNull(accountId, "accountId must not be null.");
+        checkNotNull(ticketTypeRequests, "ticketTypeRequests must not be null.");
+
         int adultCount = 0;
         int childCount = 0;
         int infantCount = 0;
@@ -73,7 +86,7 @@ public class TicketServiceImpl implements TicketService {
 
     private static final int totalCost(TicketTypeRequest... ticketTypeRequests) {
         return Arrays.stream(ticketTypeRequests)
-            .mapToInt(TicketTypeRequest::getTotalcost)
+            .mapToInt(TicketTypeRequest::getTotalCost)
             .sum();
     }
 }

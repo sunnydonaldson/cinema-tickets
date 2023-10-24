@@ -22,7 +22,7 @@ public class TicketTypeRequest {
         return type;
     }
 
-    public int getTotalcost() {
+    public int getTotalCost() {
         return this.type.getPrice() * this.noOfTickets;
     }
 
